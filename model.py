@@ -1,17 +1,18 @@
-from __future__ import division
+
 import os
 import time
 import math
 from glob import glob
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import numpy as np
 from six.moves import xrange
 import random
 
 from ops import *
 from utils import *
+from PIL import Image
 
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
+#os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
 class LAYOUTGAN(object):
   def __init__(self, sess, batch_size=64, sample_num=64, dataset_name='default', checkpoint_dir=None, sample_dir=None):
@@ -47,8 +48,8 @@ class LAYOUTGAN(object):
 
 
     self.data_pre = np.load('./data/pre_data_cls.npy')
-    print "complete loading pre_dat.npy"
-    print len(self.data_pre) 
+    print("complete loading pre_dat.npy")
+    print(len(self.data_pre)) 
 
     self.build_model()
 
@@ -107,11 +108,11 @@ class LAYOUTGAN(object):
     else:
       print(" [!] Load failed...")
 
-    for epoch in xrange(config.epoch):
+    for epoch in range(config.epoch):
       np.random.shuffle(self.data_pre)
       batch_idxs = len(self.data_pre) // config.batch_size
 
-      for idx in xrange(0, batch_idxs):
+      for idx in range(0, batch_idxs):
         batch = self.data_pre[idx*config.batch_size:(idx+1)*config.batch_size]
         batch_images = np.array(batch).astype(np.float32)
         batch_images = batch_images * 28.0 / 27.0 
@@ -131,8 +132,8 @@ class LAYOUTGAN(object):
 
         counter += 1
         if np.mod(counter, 10) == 0: 
-          print("Epoch: [%2d] [%4d/%4d] time: %4.4f, lr:%.8f, d_loss: %.4f, g_loss: %.4f" \
-            % (epoch, idx, batch_idxs, time.time()-start_time, lr.eval(), errD_fake+errD_real, errG))
+          print(("Epoch: [%2d] [%4d/%4d] time: %4.4f, lr:%.8f, d_loss: %.4f, g_loss: %.4f" \
+            % (epoch, idx, batch_idxs, time.time()-start_time, lr.eval(), errD_fake+errD_real, errG)))
 
         if np.mod(counter, 200) == 1:
           samples, d_loss, g_loss = self.sess.run([self.sampler, self.d_loss, self.g_loss],
@@ -154,8 +155,10 @@ class LAYOUTGAN(object):
 
           img_all = np.squeeze(merge(img_all, image_manifold_size(samples.shape[0])))
 
-          scipy.misc.imsave('./{}/train_{:02d}_{:04d}.jpg'.format(config.sample_dir, epoch, idx), img_all)
-          print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
+          #scipy.misc.imsave('./{}/train_{:02d}_{:04d}.jpg'.format(config.sample_dir, epoch, idx), img_all)
+          img_all_pil = Image.fromarray(img_all.astype(np.uint8))
+          img_all_pil.save('./{}/train_{:02d}_{:04d}.jpg'.format(config.sample_dir, epoch, idx))
+          print(("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss))) 
 
         if np.mod(counter, 2000) == 0:
           self.save(config.checkpoint_dir, counter)
@@ -272,7 +275,7 @@ class LAYOUTGAN(object):
       ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
       self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
       counter = int(next(re.finditer("(\d+)(?!.*\d)",ckpt_name)).group(0))
-      print(" [*] Success to read {}".format(ckpt_name))
+      print((" [*] Success to read {}".format(ckpt_name)))
       return True, counter
     else:
       print(" [*] Failed to find a checkpoint")

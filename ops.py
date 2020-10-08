@@ -1,6 +1,6 @@
 import math
 import numpy as np 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from tensorflow.python.framework import ops
 from utils import *
 
@@ -12,6 +12,7 @@ class batch_norm(object):
       self.name = name
 
   def __call__(self, x, train=True):
+    return tf.compat.v1.layers.batch_normalization(x,momentum=self.momentum, epsilon=self.epsilon, scale=True, training=train, name=self.name)
     return tf.contrib.layers.batch_norm(x,
                       decay=self.momentum, 
                       updates_collections=None,

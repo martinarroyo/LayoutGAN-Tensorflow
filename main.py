@@ -3,7 +3,7 @@ import scipy.misc
 import numpy as np
 from model import LAYOUTGAN
 from utils import pp, show_all_variables
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 flags = tf.app.flags
 flags.DEFINE_integer("epoch", 50, "Epoch to train [25]")
@@ -35,6 +35,9 @@ def main(_):
       sample_dir=FLAGS.sample_dir)
 
     show_all_variables()
+    print(tf.config.experimental.get_visible_devices())
+    assert tf.test.is_built_with_cuda()
+
 
     if FLAGS.train:
       layoutgan.train(FLAGS)

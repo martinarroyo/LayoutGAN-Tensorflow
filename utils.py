@@ -12,14 +12,14 @@ from time import gmtime, strftime
 from six.moves import xrange
 import PIL
 from PIL import Image
-import tensorflow as tf
-import tensorflow.contrib.slim as slim
+import tensorflow.compat.v1 as tf
+#import tensorflow.compat.v1.contrib.slim as slim
 
 pp = pprint.PrettyPrinter()
 
 def show_all_variables():
   model_vars = tf.trainable_variables()
-  slim.model_analyzer.analyze_vars(model_vars, print_info=True)
+  #slim.model_analyzer.analyze_vars(model_vars, print_info=True)
 
 
 def save_npy_img(images, size, image_path):
